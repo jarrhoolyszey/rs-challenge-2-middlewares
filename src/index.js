@@ -21,7 +21,7 @@ function checksExistsUserAccount(request, response, next) {
 
   request.user = user;
 
-  next();
+  return next();
 }
 
 function checksCreateTodosUserAvailability(request, response, next) {
