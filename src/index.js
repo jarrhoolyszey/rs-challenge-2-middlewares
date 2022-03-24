@@ -10,10 +10,9 @@ app.use(cors());
 const users = [];
 
 function checksExistsUserAccount(request, response, next) {
+  const { username } = request.headers;
   
-  const _username = request.get('username');
-  
-  const user = users.find(user => user.username === _username);
+  const user = users.find(user => (user.username === username));
 
   if(!user) {
     return response.status(404).json({ error: 'User does not exist.' });
@@ -37,25 +36,26 @@ function checksCreateTodosUserAvailability(request, response, next) {
 }
 
 function checksTodoExists(request, response, next) {
-  const _username = request.get('username');
+  const { username } = request.headers;
   const { id } = request.params;
+
+  const user = users.find(user => (user.username === username ));
+
+  if(!user) {
+    return response.status(404).json({ error: 'User does not exist.' });
+  }
 
   if(!validate(id)) {
     return response.status(400).json({ error: 'Given ID is not an valid uuid.' });
   }
 
-  const user = users.find(user => user.username === _username);
-
-  if(!user) {
-    return response.status(404).json({ error: 'User does not exist.' });
-  }
-  
-  const todo = user.todos.find(todo => todo.id === id);
+  const todo = user.todos.find(todo => (todo.id === id));
 
   if(!todo) {
     return response.status(404).json({ error: 'Todo not found on this user' });
   }
   
+  request.user = user;
   request.todo = todo;
   
   return next();
